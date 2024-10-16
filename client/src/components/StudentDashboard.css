@@ -1,0 +1,139 @@
+
+.background {
+  background: linear-gradient(to right, #8e44ad, #3498db);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  font-family: 'Arial', sans-serif;
+}
+
+.container-dashboard {
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 20px;
+  border-radius: 15px;
+  width: 80%;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  color: white;
+}
+
+.project-item {
+  background-color: rgba(255, 255, 255, 0.3);
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  cursor: pointer;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.project-item:hover {
+  transform: scale(1.05);
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.project-item h2 {
+  margin: 0;
+  color: #f1c40f;
+}
+
+.project-item p {
+  color: #f1f1f1;
+}
+
+.project-details {
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 20px;
+  border-radius: 10px;
+  margin-top: 20px;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.project-details h2, .project-details p {
+  color: #ecf0f1;
+}
+
+.project-details ul {
+  padding-left: 20px;
+}
+
+.project-details ul li {
+  color: #bdc3c7;
+}
+
+.add-project-form, .contribute-form {
+  background-color: rgba(255, 255, 255, 0.2);
+  padding: 20px;
+  border-radius: 10px;
+  margin-top: 20px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.add-project-form input,
+.add-project-form textarea,
+.contribute-form input {
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.8);
+  color: #2c3e50;
+  outline: none;
+  transition: background-color 0.3s ease;
+}
+
+.add-project-form input:focus, .add-project-form textarea:focus,
+.contribute-form input:focus {
+  background: rgba(255, 255, 255, 1);
+}
+
+.add-project-form button, .contribute-form button {
+  background-color: #e67e22;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.add-project-form button:hover, .contribute-form button:hover {
+  background-color: #d35400;
+}
+
+button {
+  margin-top: 20px;
+  padding: 12px 20px;
+  background-color: #2980b9;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #1abc9c;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+  .container-dashboard {
+      width: 95%;
+      padding: 15px;
+  }
+  .project-item {
+      padding: 10px;
+  }
+}

@@ -14,22 +14,23 @@ const LoginPageTeacher = () => {
 
   const handleLogin = async () => {
     if (!tid || !password) {
-      setErrorMessage('SRN and password are required.');
+      setErrorMessage('TID and password are required.');
       return;
     }
 
     try {
+      console.log(tid);
       const response = await fetch('http://localhost:5000/facultylogin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ tid, password }), // Send srn and password as JSON
+        body: JSON.stringify({ tid, password }),
       });
 
       if (response.ok) {
         console.log('User logged in successfully!');
-        navigate('/algo');
+        navigate('/teacherDashboard');
       } else {
         const message = await response.text(); // Get the error message from the response
         setErrorMessage(message); // Set the error message for display

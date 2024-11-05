@@ -1,0 +1,103 @@
+/* Sidebar Styles */
+.sidebar {
+  width: 16rem;
+  background-color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.sidebar-header {
+  padding: 1rem;
+}
+
+.sidebar-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.sidebar-nav {
+  margin-top: 1.5rem;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  color: #666;
+  text-decoration: none;
+}
+
+.nav-item:hover,
+.nav-item.active {
+  background-color: #f9f9f9;
+  color: #333;
+}
+
+.nav-icon {
+  margin-right: 0.75rem;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* Main Content Styles */
+.main-content {
+  flex: 1;
+  padding: 2rem;
+  background-color: #f5f5f5;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.main-title {
+  font-size: 1.875rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Tabs and Card Styles */
+.tabs-container {
+  margin-top: 1.5rem;
+}
+
+.tabs-list {
+  display: flex;
+  gap: 1rem;
+}
+
+.tab-content {
+  margin-top: 1rem;
+}
+
+.project-card,
+.task-card {
+  padding: 1rem;
+  border: 1px solid #eaeaea;
+  border-radius: 0.5rem;
+  background-color: #fff;
+}
+
+.progress-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.progress-bar {
+  flex: 1;
+  margin-right: 1rem;
+}
+
+.progress-text {
+  font-weight: 500;
+}

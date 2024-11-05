@@ -6,6 +6,7 @@ import SignUpPageTeacher from './components/SignUpTeacher';
 import LoginPageTeacher from './components/LoginTeacher';
 import StudentDashboard from './components/StudentDashboard';
 import TeachersDashboard from './components/TeacherDashboard';
+import AdminAssignTeacher from './components/Admin';
 function App() {
   return (
     <div >
@@ -17,6 +18,7 @@ function App() {
           <Route path="/facultylogin" element={<LoginPageTeacher/>} />
           <Route path="/studentDashboard" element={<StudentDashboard/>} />
           <Route path="/teacherDashboard" element={<TeachersDashboard/>} />
+          <Route path="/admin" element={<AdminAssignTeacher/>} />
       </Routes> 
     </Router>
     </div>

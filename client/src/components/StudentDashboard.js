@@ -185,6 +185,8 @@
 // export default StudentDashboard;
 
 
+
+
 import React, { useEffect, useState } from 'react';
 import './StudentDashboard.css'; // Import the CSS file
 
@@ -236,6 +238,7 @@ const StudentDashboard = () => {
     }, []);
 
     const handleProjectClick = (project) => {
+        console.log(project);
         setSelectedProject(project);
     };
 
@@ -248,7 +251,7 @@ const StudentDashboard = () => {
         e.preventDefault();
 
         const projectToAdd = {
-            P_ID: parseInt(newProject.P_ID),
+            // P_ID: parseInt(newProject.P_ID),
             title: newProject.title,
             courseId: newProject.courseId,
             description: newProject.description,
@@ -278,7 +281,6 @@ const StudentDashboard = () => {
         }
     };
 
-    // Handle contribute button click
     const handleContributeClick = () => {
         setShowContributeForm(true);
     };
@@ -340,6 +342,8 @@ const handleContributeSubmit = async (e) => {
                 {selectedProject && (
                     <div className="project-details">
                         <h2>Project Details</h2>
+                        <h2>Project ID {selectedProject.P_ID}</h2>
+
                         <p><strong>Description:</strong> {selectedProject.DESCRIPTION}</p>
                         <p><strong>Feedback:</strong> {selectedProject.FEEDBACK || 'No feedback available.'}</p>
                         <p><strong>Final Marks:</strong> {selectedProject.FINAL_MARKS || 'Not graded yet.'}</p>
@@ -355,7 +359,7 @@ const handleContributeSubmit = async (e) => {
                 {/* Add Project form */}
                 <form onSubmit={handleAddProject} className="add-project-form">
                     <h2>Add New Project</h2>
-                    <input type="text" name="P_ID" placeholder="Project ID" value={newProject.P_ID} onChange={handleInputChange} required />
+                    {/* <input type="text" name="P_ID" placeholder="Project ID" value={newProject.P_ID} onChange={handleInputChange} required /> */}
                     <input type="text" name="title" placeholder="Project Title" value={newProject.title} onChange={handleInputChange} required />
                     <input type="text" name="courseId" placeholder="Course ID" value={newProject.courseId} onChange={handleInputChange} required />
                     <textarea name="description" placeholder="Project Description" value={newProject.description} onChange={handleInputChange} required />

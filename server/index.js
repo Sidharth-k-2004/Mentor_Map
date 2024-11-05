@@ -19,7 +19,7 @@ const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: 'root123',
-    database: 'mentormap2'
+    database: 'mentormap4'
 });
 
 // Connect to the MySQL database
@@ -147,10 +147,12 @@ app.post('/studentDashboard', (req, res) => {
 
 
 
-app.post('/addProject', (req, res) => {
-    const { P_ID, title, courseId, description, synopsis, T_ID } = req.body;
 
-    if (!P_ID || !title || !courseId || !description || !synopsis) {
+app.post('/addProject', (req, res) => {
+    const { title, courseId, description, synopsis, T_ID } = req.body;
+
+    // Check required fields
+    if (!title || !courseId || !description || !synopsis) {
         return res.status(400).json({ error: 'All fields except T_ID are required' });
     }
 
@@ -159,10 +161,10 @@ app.post('/addProject', (req, res) => {
     }
 
     // SQL query to insert a new project
-    const projectSql = 'INSERT INTO project (P_ID, TITLE, COURSE_ID, DESCRIPTION, SYNOPSIS, T_ID) VALUES (?, ?, ?, ?, ?, ?)';
+    const projectSql = 'INSERT INTO Project (TITLE, COURSE_ID, DESCRIPTION, SYNOPSIS, T_ID) VALUES (?, ?, ?, ?, ?)';
 
     // Insert the project first
-    db.query(projectSql, [P_ID, title, courseId, description, synopsis, T_ID], (err, result) => {
+    db.query(projectSql, [title, courseId, description, synopsis, T_ID], (err, result) => {
         if (err) {
             console.error('Error inserting project:', err);
             return res.status(500).json({ error: 'Failed to add project' });
@@ -170,20 +172,24 @@ app.post('/addProject', (req, res) => {
 
         console.log('Project added:', result);
 
-        // After project insertion, insert into the marks table for the logged-in SRN
-        const marksSql = 'INSERT INTO marks (P_ID, SRN) VALUES (?, ?)';
+        // Retrieve the auto-incremented project ID
+        const projectId = result.insertId;
 
-        db.query(marksSql, [P_ID, loggedInSRN], (err, marksResult) => {
+        // Insert into the marks table for the logged-in SRN
+        const marksSql = 'INSERT INTO Marks (P_ID, SRN) VALUES (?, ?)';
+
+        db.query(marksSql, [projectId, loggedInSRN], (err, marksResult) => {
             if (err) {
                 console.error('Error inserting marks:', err);
                 return res.status(500).json({ error: 'Failed to add marks for the student' });
             }
 
             console.log('Marks added:', marksResult);
-            res.status(201).json({ message: 'Project and marks added successfully', projectId: result.insertId });
+            res.status(201).json({ message: 'Project and marks added successfully', projectId });
         });
     });
 });
+
 
 app.post('/contribute', (req, res) => {
     const { projectId } = req.body;
@@ -261,7 +267,6 @@ app.post('/facultylogin', (req, res) => {
     });
 });
 
-// In your backend (Node.js/Express)
 
 app.get('/teacherdashboard', (req, res) => {
     const teacherId = loggedInTid; // assuming `loggedInTid` contains the teacher's ID
@@ -335,7 +340,7 @@ app.get('/teacherdashboard/project/:projectId', (req, res) => {
         SELECT 
             Project.P_ID, Project.TITLE, Project.DESCRIPTION, Project.SYNOPSIS,
             Student.NAME AS studentName, Student.SRN
-        FROM 
+        FROM  
             Project
         LEFT JOIN 
             Marks ON Project.P_ID = Marks.P_ID
@@ -359,24 +364,159 @@ app.get('/teacherdashboard/project/:projectId', (req, res) => {
     });
 });
 
-app.post('/teacherdashboard/submit', (req, res) => {
-    const { projectId, feedback, marks } = req.body;
-    const insertReview = `
-        INSERT INTO Review (FEEDBACK, P_ID) VALUES (?, ?);
-    `;
-    const updateMarks = `
-        UPDATE Marks SET FINAL_MARKS = ? WHERE P_ID = ?;
-    `;
-    
-    db.query(insertReview, [feedback, projectId], (err, reviewResults) => {
-        if (err) return res.status(500).json({ error: 'Error saving feedback' });
 
-        db.query(updateMarks, [marks, projectId], (err, marksResults) => {
-            if (err) return res.status(500).json({ error: 'Error updating marks' });
-            res.json({ message: 'Feedback and marks submitted successfully' });
-        });
+
+app.post('/teacherdashboard/submit', async (req, res) => {
+    const { projectId, feedback, studentMarks } = req.body;
+    console.log('Received data:', req.body);
+
+    if (!loggedInTid) {
+        return res.status(401).json({ error: 'Teacher not logged in' });
+    }
+
+    const reviewDate = new Date(); // Assuming the review date is the current date
+
+    // Update review details in the Review table
+    const reviewSql = `
+        INSERT INTO Review (P_ID, FEEDBACK) 
+        VALUES (?, ?)
+        ON DUPLICATE KEY UPDATE 
+            REVIEW_DATE = VALUES(REVIEW_DATE),
+            FEEDBACK = VALUES(FEEDBACK)
+    `;
+
+    db.query(reviewSql, [projectId, feedback], (reviewErr, reviewResult) => {
+        if (reviewErr) {
+            console.error('Error updating review:', reviewErr);
+            return res.status(500).json({ error: 'Failed to update review' });
+        }
+        console.log('Review result:', reviewResult);
+
+        // Iterate through each key-value pair in studentMarks
+        for (const [srn, finalMarks] of Object.entries(studentMarks)) {
+            const updateMarksSql = `
+                UPDATE Marks 
+                SET FINAL_MARKS = ?
+                WHERE P_ID = ? AND SRN = ?
+            `;
+
+            db.query(updateMarksSql, [finalMarks, projectId, srn], (marksErr, marksResult) => {
+                if (marksErr) {
+                    console.error(`Error updating marks for SRN ${srn}:`, marksErr);
+                    // Log the error, but continue the loop
+                } else {
+                    console.log(`Marks updated for SRN ${srn}:`, marksResult);
+                }
+            });
+        }
+
+        res.status(200).json({ message: 'Review and marks updated successfully' });
     });
 });
+
+
+
+
+
+app.post('/projects/updateTeacher', async (req, res) => {
+    const { projectId, teacherId } = req.body;
+    console.log('Received request data:', req.body);
+
+    try {
+        // Perform the query and log the result to inspect its structure
+        const result = await db.query(
+            'UPDATE Project SET T_ID = ? WHERE P_ID = ?',
+            [teacherId, projectId]
+        );
+        
+        // Log the result to understand its structure
+        console.log('Query result:', result);
+
+        // Check if the result is in the expected format and has affectedRows property
+        if (Array.isArray(result) && result[0]?.affectedRows > 0) {
+            res.json({ success: true, message: 'Teacher assigned successfully!' });
+        } else if (result?.affectedRows > 0) { // If db.query returns an object directly
+            res.json({ success: true, message: 'Teacher assigned successfully!' });
+        } else {
+            res.json({ success: false, message: 'Teacher assigned successfully!' });
+        }
+    } catch (error) {
+        console.error('Error updating teacher:', error);
+        res.status(500).json({ success: false, message: 'Database error occurred.' });
+    }
+});
+
+
+//NESTED QUERY
+app.get('/average-marks', (req, res) => {
+    const query = `
+        SELECT AVG(FINAL_MARKS) AS average_marks
+        FROM Marks
+        WHERE SRN IN (
+            SELECT SRN 
+            FROM Student
+        );
+    `;
+
+    db.query(query, (err, results) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        // Return the average marks. Handle cases where no marks are available
+        const averageMarks = results[0].average_marks !== null ? results[0].average_marks : 0;
+        res.json({ average_marks: averageMarks });
+    });
+});
+
+app.get('/students-below-average', (req, res) => {
+    const query = `
+        SELECT SRN, NAME
+        FROM Student
+        WHERE SRN IN (
+            SELECT SRN
+            FROM Marks
+            WHERE FINAL_MARKS < (
+                SELECT AVG(FINAL_MARKS)
+                FROM Marks
+            )
+        );
+    `;
+
+    db.query(query, (err, results) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        // Return the students who have marks below the average
+        res.json(results);
+    });
+});
+
+app.get('/students-highest-marks', (req, res) => {
+    const query = `
+        SELECT S.SRN, S.NAME
+        FROM Student S
+        WHERE S.SRN IN (
+            SELECT M.SRN
+            FROM Marks M
+            WHERE M.FINAL_MARKS = (
+                SELECT MAX(FINAL_MARKS)
+                FROM Marks
+            )
+        );
+    `;
+
+    db.query(query, (err, results) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        console.log(results);
+        res.json(results);
+    });
+});
+
+
+
+  
 
 
 // Start the server
